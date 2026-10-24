@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="BrandGuard helps reviewers identify potential brand governance issues in campaign copy.">
+  <title>BrandGuard — Content Review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033; --muted: #68758a; --line: #e2e8f0;
+      --paper: #ffffff; --canvas: #f4f7fb; --navy: #101827;
+      --blue: #4263eb; --blue-dark: #2f4ed0; --teal: #0f9f8f;
+      --amber: #b86b08; --red: #bd3c4a; --shadow: 0 14px 38px rgba(23,32,51,.07);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { background: var(--navy); color: white; border-bottom: 1px solid rgba(255,255,255,.09); }
+    .topbar-inner { max-width: 1180px; margin: auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: white; font-weight: 850; letter-spacing: -.05em; background: linear-gradient(135deg,#6686ff,#3154d8); box-shadow: 0 7px 18px rgba(66,99,235,.28); }
+    h1 { margin: 0; font-size: 22px; letter-spacing: -.04em; }
+    .brand-sub { margin: 1px 0 0; color: #b8c3d7; font-size: 12px; }
+    .prototype { border: 1px solid #39465a; background: #1a2639; color: #d7e0f1; padding: 7px 11px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 24px 42px; }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 24px; }
+    .eyebrow { color: var(--blue); text-transform: uppercase; letter-spacing: .13em; font-size: 11px; font-weight: 800; }
+    .intro h2 { margin: 5px 0 7px; font-size: clamp(25px,3vw,34px); letter-spacing: -.045em; line-height: 1.15; }
+    .intro p { margin: 0; max-width: 650px; color: var(--muted); }
+    .local-note { font-size: 12px; color: #526174; background: #eaf0ff; border: 1px solid #dbe5ff; padding: 9px 12px; border-radius: 12px; max-width: 230px; }
+    .layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 20px; align-items: start; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 21px 22px 17px; border-bottom: 1px solid #edf1f6; }
+    .card-head h3 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
+    .step { color: #7c8798; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+    .card-body { padding: 21px 22px 23px; }
+    .field { margin-bottom: 17px; }
+    label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 7px; }
+    input, textarea, select { width: 100%; border: 1px solid #d4dce8; border-radius: 10px; background: #fff; color: var(--ink); padding: 11px 12px; outline: none; transition: border-color .15s, box-shadow .15s; }
+    input:focus, textarea:focus, select:focus { border-color: #7790ff; box-shadow: 0 0 0 3px rgba(66,99,235,.12); }
+    textarea { min-height: 225px; resize: vertical; line-height: 1.6; }
+    .help { margin: 7px 0 0; font-size: 12px; color: var(--muted); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 19px; }
+    .btn { border: 1px solid transparent; border-radius: 10px; padding: 10px 15px; font-weight: 750; transition: transform .12s, background .12s; }
+    .btn:active { transform: translateY(1px); }
+    .primary { background: var(--blue); color: white; box-shadow: 0 6px 14px rgba(66,99,235,.2); }
+    .primary:hover { background: var(--blue-dark); }
+    .secondary { background: #f7f9fc; color: #344054; border-color: #dbe2ec; }
+    .secondary:hover { background: #edf2f8; }
+    .results-top { padding: 17px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fafbfe; border-bottom: 1px solid #edf1f6; }
+    .summary { font-size: 13px; color: var(--muted); margin: 0; }
+    .count { background: #eaf0ff; color: #2f4ed0; border-radius: 999px; font-size: 12px; font-weight: 800; padding: 5px 9px; white-space: nowrap; }
+    .results { padding: 18px 22px 7px; }
+    .empty { border: 1px dashed #cfd8e6; border-radius: 13px; padding: 26px 16px; text-align: center; color: var(--muted); }
+    .empty strong { display: block; color: #344054; margin-bottom: 4px; }
+    .finding { padding: 14px 15px; margin-bottom: 12px; border: 1px solid #f1d5a6; border-left: 4px solid var(--amber); border-radius: 12px; background: #fffbf2; }
+    .finding.high { border-color: #f0c5ca; border-left-color: var(--red); background: #fff6f6; }
+    .finding.low { border-color: #cde8e3; border-left-color: var(--teal); background: #f3fcf9; }
+    .finding-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 800; }
+    .severity { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; border-radius: 999px; padding: 4px 7px; background: #ffebc7; color: #8b4b00; }
+    .high .severity { background: #ffe0e3; color: #a12d3a; }
+    .low .severity { background: #d8f5ed; color: #087763; }
+    .finding p { margin: 9px 0 0; font-size: 13px; color: #586477; }
+    .finding p b { color: #344054; }
+    .good { background: #f0fbf7; border: 1px solid #c8eee2; border-left: 4px solid var(--teal); border-radius: 12px; padding: 15px; }
+    .good strong { color: #087763; }
+    .reviewer { padding: 20px 22px 23px; border-top: 1px solid #edf1f6; background: #fcfdff; }
+    .reviewer h4 { margin: 0 0 15px; font-size: 14px; }
+    .reviewer textarea { min-height: 82px; }
+    .footer { margin-top: 20px; padding: 15px 18px; border: 1px solid var(--line); background: rgba(255,255,255,.7); border-radius: 13px; color: #68758a; font-size: 12px; }
+    .footer strong { color: #344054; }
+    .status { min-height: 18px; font-size: 12px; color: var(--teal); margin: 10px 0 0; }
+    @media (max-width: 760px) {
+      .topbar-inner { padding: 16px; } .wrap { padding: 23px 15px 30px; }
+      .intro { display: block; } .local-note { margin-top: 15px; max-width: none; }
+      .layout { grid-template-columns: 1fr; } .card-head,.card-body,.results,.reviewer { padding-left: 17px; padding-right: 17px; }
+      .results-top { padding-left: 17px; padding-right: 17px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">BG</div>
+        <div><h1>BrandGuard</h1><p class="brand-sub">CodeNova · Brand governance review prototype</p></div>
+      </div>
+      <span class="prototype">PROTOTYPE · LOCAL RULES</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="intro">
+      <div>
+        <div class="eyebrow">Content assurance workspace</div>
+        <h2>Review content before it goes live.</h2>
+        <p>Spot potential brand, promotion and messaging risks. Review every finding, make corrections, and keep a record of the human decision.</p>
+      </div>
+      <div class="local-note"><strong>Privacy note</strong><br>Checks run in this browser. Draft text is not sent to an external AI service.</div>
+    </section>
+
+    <div class="layout">
+      <section class="card" aria-labelledby="draft-heading">
+        <div class="card-head"><h3 id="draft-heading">Draft content</h3><span class="step">STEP 01</span></div>
+        <div class="card-body">
+          <div class="field">
+            <label for="campaign">Campaign name</label>
+            <input id="campaign" name="campaign" value="Spring product campaign" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="content">Content to review</label>
+            <textarea id="content" name="content" spellcheck="true">Our product is the best in the world! Get 90% off today only. We guarantee results for every customer. Contact us to learn more.</textarea>
+            <p class="help">Paste ad copy, a social post, or campaign messaging. The demo checks a small set of sample rules.</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="reviewBtn" type="button">Review content →</button>
+            <button class="btn secondary" id="exampleBtn" type="button">Load sample draft</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="findings-heading">
+        <div class="card-head"><h3 id="findings-heading">Review findings</h3><span class="step">STEP 02</span></div>
+        <div class="results-top">
+          <p class="summary" id="summary" aria-live="polite">Ready to review. Run a check to see potential issues.</p>
+          <span class="count" id="count">Not run</span>
+        </div>
+        <div class="results" id="results" aria-live="polite">
+          <div class="empty"><strong>Your findings will appear here</strong>Run a review to see the reason and a suggested next step for each potential issue.</div>
+        </div>
+        <div class="reviewer">
+          <h4>Human review decision</h4>
+          <div class="field">
+            <label for="decision">Decision</label>
+            <select id="decision" name="decision">
+              <option value="In review">In review</option>
+              <option value="Changes requested">Changes requested</option>
+              <option value="Approved by reviewer">Approved by reviewer</option>
+              <option value="Escalated for fact check">Escalated for fact check</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="notes">Reviewer notes</label>
+            <textarea id="notes" name="notes" placeholder="Add rationale, required edits, or evidence checked…" style="min-height:82px"></textarea>
+          </div>
+          <button class="btn primary" id="saveBtn" type="button">Download review record ↓</button>
+          <p class="status" id="saved" aria-live="polite"></p>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer"><strong>Prototype limitation:</strong> These are illustrative keyword-based checks, not a complete AI or factual verification system. “No issues detected” does not mean a claim is verified. A human reviewer must check flagged claims against approved sources and campaign terms.</div>
+  </main>
+
+  <script>
+    "use strict";
+
+    const SAMPLE_DRAFT = "Our product is the best in the world! Get 90% off today only. We guarantee results for every customer. Contact us to learn more.";
+    const rules = [
+      { regex: /\b(best|#1|number one|world'?s leading)\b/i, title: "Superiority claim", severity: "High", why: "This absolute or comparative claim may need evidence from an approved source.", suggestion: "Use a specific, verifiable benefit or attach approved supporting evidence." },
+      { regex: /\b(guarantee|guaranteed|100% results|always works)\b/i, title: "Guarantee claim", severity: "High", why: "A guarantee can mislead if the promise, scope, or conditions are not substantiated.", suggestion: "Remove the promise or state verified conditions and evidence clearly." },
+      { regex: /\b\\d+\\s?%\\s?off\b/i, title: "Discount needs verification", severity: "Medium", why: "The discount amount, dates, eligibility, and terms should match the approved promotion.", suggestion: "Verify the offer and include applicable dates, eligibility, and terms." },
+      { regex: /\b(today only|limited time|act now|last chance)\b/i, title: "Urgency wording", severity: "Medium", why: "Urgency wording should reflect a real, approved deadline or limited availability.", suggestion: "Add the actual deadline or use neutral wording." },
+      { regex: /\b(contact us|click here)\b/i, title: "Generic call to action", severity: "Low", why: "The next step may be unclear to the audience.", suggestion: "Use a more specific action, such as “View product details”." },
+      { regex: /\b(image|photo|picture|banner)\b/i, title: "Accessibility reminder", severity: "Low", why: "If the campaign includes meaningful images, they may need suitable alternative text.", suggestion: "Add concise alt text that describes the image’s purpose." }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    let lastFindings = [];
+
+    function makeFinding(rule) {
+      const article = document.createElement("article");
+      article.className = "finding" + (rule.severity === "High" ? " high" : rule.severity === "Low" ? " low" : "");
+      const title = document.createElement("div");
+      title.className = "finding-title";
+      const name = document.createElement("span");
+      name.textContent = rule.title;
+      const severity = document.createElement("span");
+      severity.className = "severity";
+      severity.textContent = rule.severity + " priority";
+      title.append(name, severity);
+      const why = document.createElement("p");
+      const whyLabel = document.createElement("b");
+      whyLabel.textContent = "Why: ";
+      why.append(whyLabel, document.createTextNode(rule.why));
+      const suggestion = document.createElement("p");
+      const suggestionLabel = document.createElement("b");
+      suggestionLabel.textContent = "Suggested action: ";
+      suggestion.append(suggestionLabel, document.createTextNode(rule.suggestion));
+      article.append(title, why, suggestion);
+      return article;
+    }
+
+    function review() {
+      const content = $("content").value;
+      lastFindings = rules.filter(rule => rule.regex.test(content));
+      $("results").replaceChildren();
+      $("count").textContent = lastFindings.length + (lastFindings.length === 1 ? " finding" : " findings");
+      $("summary").textContent = lastFindings.length
+        ? "Potential issues found. Review each one against approved sources."
+        : "No sample-rule issues detected. Factual verification is still required.";
+      if (lastFindings.length) {
+        lastFindings.forEach(rule => $("results").appendChild(makeFinding(rule)));
+      } else {
+        const box = document.createElement("div");
+        box.className = "good";
+        const strong = document.createElement("strong");
+        strong.textContent = "No sample-rule issues detected";
+        const p = document.createElement("p");
+        p.textContent = "This does not prove the draft is factually correct. Verify claims against approved sources.";
+        p.style.margin = "7px 0 0";
+        box.append(strong, p);
+        $("results").appendChild(box);
+      }
+      $("saved").textContent = "";
+    }
+
+    function loadExample() {
+      $("content").value = SAMPLE_DRAFT;
+      $("campaign").value = "Spring product campaign";
+      review();
+    }
+
+    function saveRecord() {
+      const data = {
+        product: "BrandGuard",
+        prototype: true,
+        campaign: $("campaign").value.trim(),
+        content: $("content").value,
+        findings: lastFindings.map(({title, severity, why, suggestion}) => ({title, severity, why, suggestion})),
+        decision: $("decision").value,
+        notes: $("notes").value.trim(),
+        savedAt: new Date().toISOString(),
+        limitation: "Illustrative keyword-based checks only; human verification required."
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "brandguard-review-record.json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      $("saved").textContent = "Review record prepared for download.";
+    }
+
+    $("reviewBtn").addEventListener("click", review);
+    $("exampleBtn").addEventListener("click", loadExample);
+    $("saveBtn").addEventListener("click", saveRecord);
+    review();
+  </script>
+</body>
+</html>
