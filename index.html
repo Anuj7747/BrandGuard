@@ -1,259 +1,55 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101827">
-  <meta name="description" content="BrandGuard helps reviewers identify potential brand governance issues in campaign copy.">
-  <title>BrandGuard — Content Review</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #172033; --muted: #68758a; --line: #e2e8f0;
-      --paper: #ffffff; --canvas: #f4f7fb; --navy: #101827;
-      --blue: #4263eb; --blue-dark: #2f4ed0; --teal: #0f9f8f;
-      --amber: #b86b08; --red: #bd3c4a; --shadow: 0 14px 38px rgba(23,32,51,.07);
-      --radius: 18px;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    button, input, textarea, select { font: inherit; }
-    button { cursor: pointer; }
-    .topbar { background: var(--navy); color: white; border-bottom: 1px solid rgba(255,255,255,.09); }
-    .topbar-inner { max-width: 1180px; margin: auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .logo { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: white; font-weight: 850; letter-spacing: -.05em; background: linear-gradient(135deg,#6686ff,#3154d8); box-shadow: 0 7px 18px rgba(66,99,235,.28); }
-    h1 { margin: 0; font-size: 22px; letter-spacing: -.04em; }
-    .brand-sub { margin: 1px 0 0; color: #b8c3d7; font-size: 12px; }
-    .prototype { border: 1px solid #39465a; background: #1a2639; color: #d7e0f1; padding: 7px 11px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 24px 42px; }
-    .intro { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 24px; }
-    .eyebrow { color: var(--blue); text-transform: uppercase; letter-spacing: .13em; font-size: 11px; font-weight: 800; }
-    .intro h2 { margin: 5px 0 7px; font-size: clamp(25px,3vw,34px); letter-spacing: -.045em; line-height: 1.15; }
-    .intro p { margin: 0; max-width: 650px; color: var(--muted); }
-    .local-note { font-size: 12px; color: #526174; background: #eaf0ff; border: 1px solid #dbe5ff; padding: 9px 12px; border-radius: 12px; max-width: 230px; }
-    .layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 20px; align-items: start; }
-    .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 21px 22px 17px; border-bottom: 1px solid #edf1f6; }
-    .card-head h3 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
-    .step { color: #7c8798; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
-    .card-body { padding: 21px 22px 23px; }
-    .field { margin-bottom: 17px; }
-    label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 7px; }
-    input, textarea, select { width: 100%; border: 1px solid #d4dce8; border-radius: 10px; background: #fff; color: var(--ink); padding: 11px 12px; outline: none; transition: border-color .15s, box-shadow .15s; }
-    input:focus, textarea:focus, select:focus { border-color: #7790ff; box-shadow: 0 0 0 3px rgba(66,99,235,.12); }
-    textarea { min-height: 225px; resize: vertical; line-height: 1.6; }
-    .help { margin: 7px 0 0; font-size: 12px; color: var(--muted); }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 19px; }
-    .btn { border: 1px solid transparent; border-radius: 10px; padding: 10px 15px; font-weight: 750; transition: transform .12s, background .12s; }
-    .btn:active { transform: translateY(1px); }
-    .primary { background: var(--blue); color: white; box-shadow: 0 6px 14px rgba(66,99,235,.2); }
-    .primary:hover { background: var(--blue-dark); }
-    .secondary { background: #f7f9fc; color: #344054; border-color: #dbe2ec; }
-    .secondary:hover { background: #edf2f8; }
-    .results-top { padding: 17px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fafbfe; border-bottom: 1px solid #edf1f6; }
-    .summary { font-size: 13px; color: var(--muted); margin: 0; }
-    .count { background: #eaf0ff; color: #2f4ed0; border-radius: 999px; font-size: 12px; font-weight: 800; padding: 5px 9px; white-space: nowrap; }
-    .results { padding: 18px 22px 7px; }
-    .empty { border: 1px dashed #cfd8e6; border-radius: 13px; padding: 26px 16px; text-align: center; color: var(--muted); }
-    .empty strong { display: block; color: #344054; margin-bottom: 4px; }
-    .finding { padding: 14px 15px; margin-bottom: 12px; border: 1px solid #f1d5a6; border-left: 4px solid var(--amber); border-radius: 12px; background: #fffbf2; }
-    .finding.high { border-color: #f0c5ca; border-left-color: var(--red); background: #fff6f6; }
-    .finding.low { border-color: #cde8e3; border-left-color: var(--teal); background: #f3fcf9; }
-    .finding-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 800; }
-    .severity { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; border-radius: 999px; padding: 4px 7px; background: #ffebc7; color: #8b4b00; }
-    .high .severity { background: #ffe0e3; color: #a12d3a; }
-    .low .severity { background: #d8f5ed; color: #087763; }
-    .finding p { margin: 9px 0 0; font-size: 13px; color: #586477; }
-    .finding p b { color: #344054; }
-    .good { background: #f0fbf7; border: 1px solid #c8eee2; border-left: 4px solid var(--teal); border-radius: 12px; padding: 15px; }
-    .good strong { color: #087763; }
-    .reviewer { padding: 20px 22px 23px; border-top: 1px solid #edf1f6; background: #fcfdff; }
-    .reviewer h4 { margin: 0 0 15px; font-size: 14px; }
-    .reviewer textarea { min-height: 82px; }
-    .footer { margin-top: 20px; padding: 15px 18px; border: 1px solid var(--line); background: rgba(255,255,255,.7); border-radius: 13px; color: #68758a; font-size: 12px; }
-    .footer strong { color: #344054; }
-    .status { min-height: 18px; font-size: 12px; color: var(--teal); margin: 10px 0 0; }
-    @media (max-width: 760px) {
-      .topbar-inner { padding: 16px; } .wrap { padding: 23px 15px 30px; }
-      .intro { display: block; } .local-note { margin-top: 15px; max-width: none; }
-      .layout { grid-template-columns: 1fr; } .card-head,.card-body,.results,.reviewer { padding-left: 17px; padding-right: 17px; }
-      .results-top { padding-left: 17px; padding-right: 17px; }
-    }
-    @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
-  </style>
-</head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101827">
+<meta name="description" content="BrandGuard reviews campaign copy against configurable brand guidelines and records human review decisions."><title>BrandGuard — Brand Governance Workspace</title>
+<style>
+:root{--ink:#182238;--muted:#68758a;--line:#e1e7f0;--paper:#fff;--bg:#f4f7fb;--navy:#101827;--blue:#4263eb;--blue2:#2f4ed0;--teal:#0f9f8f;--amber:#b86b08;--red:#bd3c4a;--shadow:0 12px 32px #1720330d;--r:17px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff}.topin{max-width:1250px;margin:auto;padding:17px 23px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#718bff,#3154d8);font-weight:900}.brand h1{font-size:21px;margin:0;letter-spacing:-.04em}.sub{font-size:12px;color:#bdc8db;margin:1px 0}.pill{border:1px solid #39465a;border-radius:999px;padding:6px 10px;color:#d7e0f1;font-size:11px;white-space:nowrap}.wrap{max-width:1250px;margin:auto;padding:27px 23px 40px}.hero{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:22px}.eyebrow{font-size:11px;color:var(--blue);font-weight:850;letter-spacing:.13em;text-transform:uppercase}.hero h2{font-size:clamp(26px,3vw,35px);line-height:1.12;letter-spacing:-.045em;margin:5px 0 8px}.hero p{max-width:700px;color:var(--muted);margin:0}.notice{max-width:300px;background:#eaf0ff;border:1px solid #dbe5ff;border-radius:12px;padding:10px 12px;font-size:12px;color:#42516b}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}.tab{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 13px;font-weight:750;color:#526174}.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}.panel{display:none}.panel.active{display:block}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}.head{padding:18px 20px 14px;border-bottom:1px solid #edf1f6;display:flex;justify-content:space-between;gap:12px;align-items:center}.head h3{margin:0;font-size:16px}.step{font-size:10px;color:#7c8798;letter-spacing:.09em;font-weight:850}.body{padding:19px 20px 21px}.field{margin-bottom:15px}label{display:block;font-weight:750;font-size:12px;margin-bottom:6px}input,textarea,select{width:100%;padding:10px 11px;border:1px solid #d4dce8;border-radius:10px;background:#fff;color:var(--ink);outline:none}input:focus,textarea:focus,select:focus{border-color:#7790ff;box-shadow:0 0 0 3px #4263eb1f}textarea{min-height:190px;resize:vertical;line-height:1.6}.help{font-size:12px;color:var(--muted);margin:6px 0 0}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.btn{border:1px solid transparent;border-radius:10px;padding:9px 13px;font-weight:800;font-size:13px}.primary{background:var(--blue);color:#fff}.primary:hover{background:var(--blue2)}.secondary{background:#f7f9fc;border-color:#dbe2ec;color:#344054}.danger{background:#fff5f5;border-color:#f2c8cc;color:#a12d3a}.summarybar{padding:14px 20px;background:#fafbfe;border-bottom:1px solid #edf1f6;display:flex;justify-content:space-between;gap:12px;align-items:center}.summary{font-size:12px;color:var(--muted);margin:0}.count{font-size:11px;font-weight:850;background:#eaf0ff;color:#2f4ed0;border-radius:999px;padding:5px 9px;white-space:nowrap}.results{padding:16px 20px 6px}.empty{padding:23px 14px;border:1px dashed #cfd8e6;border-radius:12px;text-align:center;color:var(--muted)}.finding{padding:13px 14px;margin-bottom:11px;border:1px solid #f1d5a6;border-left:4px solid var(--amber);border-radius:11px;background:#fffbf2}.finding.high{border-color:#f0c5ca;border-left-color:var(--red);background:#fff6f6}.finding.low{border-color:#cde8e3;border-left-color:var(--teal);background:#f3fcf9}.ftitle{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:850}.severity{font-size:10px;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:3px 7px;background:#ffebc7;color:#8b4b00;white-space:nowrap}.high .severity{background:#ffe0e3;color:#a12d3a}.low .severity{background:#d8f5ed;color:#087763}.finding p{font-size:12px;color:#586477;margin:7px 0 0}.good{background:#f0fbf7;border:1px solid #c8eee2;border-left:4px solid var(--teal);border-radius:11px;padding:14px}.reviewer{padding:17px 20px 20px;border-top:1px solid #edf1f6;background:#fcfdff}.reviewer h4{margin:0 0 12px}.status{min-height:18px;font-size:12px;color:var(--teal);margin:9px 0 0}.status.error{color:var(--red)}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.list{display:flex;flex-direction:column;gap:9px}.rowitem{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:#fff}.rowitem strong{font-size:13px}.rowitem small{display:block;color:var(--muted);font-size:11px}.tag{font-size:10px;font-weight:850;border-radius:999px;padding:4px 7px;background:#edf2ff;color:#3550bc}.checkline{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}.checkline input{width:auto}.footer{margin-top:19px;padding:13px 16px;border:1px solid var(--line);background:#ffffffb8;border-radius:12px;color:var(--muted);font-size:11px}.footer strong{color:#344054}.history-item{padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:9px}.history-item h4{margin:0 0 4px;font-size:13px}.history-item p{margin:3px 0;color:var(--muted);font-size:11px}.small{font-size:11px;color:var(--muted)}.keybox{background:#fff9e9;border:1px solid #f3dfaa;padding:12px;border-radius:11px;font-size:12px;color:#775313;margin-bottom:14px}.mutedbox{padding:14px;background:#f7f9fc;border:1px solid var(--line);border-radius:11px;color:var(--muted);font-size:12px}@media(max-width:800px){.topin,.wrap{padding-left:15px;padding-right:15px}.hero{display:block}.notice{margin-top:13px;max-width:none}.grid,.two{grid-template-columns:1fr}.body,.head,.results,.reviewer{padding-left:16px;padding-right:16px}.summarybar{padding-left:16px;padding-right:16px}.pill{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">BG</div>
-        <div><h1>BrandGuard</h1><p class="brand-sub">CodeNova · Brand governance review prototype</p></div>
-      </div>
-      <span class="prototype">PROTOTYPE · LOCAL RULES</span>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <section class="intro">
-      <div>
-        <div class="eyebrow">Content assurance workspace</div>
-        <h2>Review content before it goes live.</h2>
-        <p>Spot potential brand, promotion and messaging risks. Review every finding, make corrections, and keep a record of the human decision.</p>
-      </div>
-      <div class="local-note"><strong>Privacy note</strong><br>Checks run in this browser. Draft text is not sent to an external AI service.</div>
-    </section>
-
-    <div class="layout">
-      <section class="card" aria-labelledby="draft-heading">
-        <div class="card-head"><h3 id="draft-heading">Draft content</h3><span class="step">STEP 01</span></div>
-        <div class="card-body">
-          <div class="field">
-            <label for="campaign">Campaign name</label>
-            <input id="campaign" name="campaign" value="Spring product campaign" autocomplete="off">
-          </div>
-          <div class="field">
-            <label for="content">Content to review</label>
-            <textarea id="content" name="content" spellcheck="true">Our product is the best in the world! Get 90% off today only. We guarantee results for every customer. Contact us to learn more.</textarea>
-            <p class="help">Paste ad copy, a social post, or campaign messaging. The demo checks a small set of sample rules.</p>
-          </div>
-          <div class="actions">
-            <button class="btn primary" id="reviewBtn" type="button">Review content →</button>
-            <button class="btn secondary" id="exampleBtn" type="button">Load sample draft</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="card" aria-labelledby="findings-heading">
-        <div class="card-head"><h3 id="findings-heading">Review findings</h3><span class="step">STEP 02</span></div>
-        <div class="results-top">
-          <p class="summary" id="summary" aria-live="polite">Ready to review. Run a check to see potential issues.</p>
-          <span class="count" id="count">Not run</span>
-        </div>
-        <div class="results" id="results" aria-live="polite">
-          <div class="empty"><strong>Your findings will appear here</strong>Run a review to see the reason and a suggested next step for each potential issue.</div>
-        </div>
-        <div class="reviewer">
-          <h4>Human review decision</h4>
-          <div class="field">
-            <label for="decision">Decision</label>
-            <select id="decision" name="decision">
-              <option value="In review">In review</option>
-              <option value="Changes requested">Changes requested</option>
-              <option value="Approved by reviewer">Approved by reviewer</option>
-              <option value="Escalated for fact check">Escalated for fact check</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="notes">Reviewer notes</label>
-            <textarea id="notes" name="notes" placeholder="Add rationale, required edits, or evidence checked…" style="min-height:82px"></textarea>
-          </div>
-          <button class="btn primary" id="saveBtn" type="button">Download review record ↓</button>
-          <p class="status" id="saved" aria-live="polite"></p>
-        </div>
-      </section>
-    </div>
-
-    <div class="footer"><strong>Prototype limitation:</strong> These are illustrative keyword-based checks, not a complete AI or factual verification system. “No issues detected” does not mean a claim is verified. A human reviewer must check flagged claims against approved sources and campaign terms.</div>
-  </main>
-
-  <script>
-    "use strict";
-
-    const SAMPLE_DRAFT = "Our product is the best in the world! Get 90% off today only. We guarantee results for every customer. Contact us to learn more.";
-    const rules = [
-      { regex: /\b(best|#1|number one|world'?s leading)\b/i, title: "Superiority claim", severity: "High", why: "This absolute or comparative claim may need evidence from an approved source.", suggestion: "Use a specific, verifiable benefit or attach approved supporting evidence." },
-      { regex: /\b(guarantee|guaranteed|100% results|always works)\b/i, title: "Guarantee claim", severity: "High", why: "A guarantee can mislead if the promise, scope, or conditions are not substantiated.", suggestion: "Remove the promise or state verified conditions and evidence clearly." },
-      { regex: /\b\\d+\\s?%\\s?off\b/i, title: "Discount needs verification", severity: "Medium", why: "The discount amount, dates, eligibility, and terms should match the approved promotion.", suggestion: "Verify the offer and include applicable dates, eligibility, and terms." },
-      { regex: /\b(today only|limited time|act now|last chance)\b/i, title: "Urgency wording", severity: "Medium", why: "Urgency wording should reflect a real, approved deadline or limited availability.", suggestion: "Add the actual deadline or use neutral wording." },
-      { regex: /\b(contact us|click here)\b/i, title: "Generic call to action", severity: "Low", why: "The next step may be unclear to the audience.", suggestion: "Use a more specific action, such as “View product details”." },
-      { regex: /\b(image|photo|picture|banner)\b/i, title: "Accessibility reminder", severity: "Low", why: "If the campaign includes meaningful images, they may need suitable alternative text.", suggestion: "Add concise alt text that describes the image’s purpose." }
-    ];
-
-    const $ = (id) => document.getElementById(id);
-    let lastFindings = [];
-
-    function makeFinding(rule) {
-      const article = document.createElement("article");
-      article.className = "finding" + (rule.severity === "High" ? " high" : rule.severity === "Low" ? " low" : "");
-      const title = document.createElement("div");
-      title.className = "finding-title";
-      const name = document.createElement("span");
-      name.textContent = rule.title;
-      const severity = document.createElement("span");
-      severity.className = "severity";
-      severity.textContent = rule.severity + " priority";
-      title.append(name, severity);
-      const why = document.createElement("p");
-      const whyLabel = document.createElement("b");
-      whyLabel.textContent = "Why: ";
-      why.append(whyLabel, document.createTextNode(rule.why));
-      const suggestion = document.createElement("p");
-      const suggestionLabel = document.createElement("b");
-      suggestionLabel.textContent = "Suggested action: ";
-      suggestion.append(suggestionLabel, document.createTextNode(rule.suggestion));
-      article.append(title, why, suggestion);
-      return article;
-    }
-
-    function review() {
-      const content = $("content").value;
-      lastFindings = rules.filter(rule => rule.regex.test(content));
-      $("results").replaceChildren();
-      $("count").textContent = lastFindings.length + (lastFindings.length === 1 ? " finding" : " findings");
-      $("summary").textContent = lastFindings.length
-        ? "Potential issues found. Review each one against approved sources."
-        : "No sample-rule issues detected. Factual verification is still required.";
-      if (lastFindings.length) {
-        lastFindings.forEach(rule => $("results").appendChild(makeFinding(rule)));
-      } else {
-        const box = document.createElement("div");
-        box.className = "good";
-        const strong = document.createElement("strong");
-        strong.textContent = "No sample-rule issues detected";
-        const p = document.createElement("p");
-        p.textContent = "This does not prove the draft is factually correct. Verify claims against approved sources.";
-        p.style.margin = "7px 0 0";
-        box.append(strong, p);
-        $("results").appendChild(box);
-      }
-      $("saved").textContent = "";
-    }
-
-    function loadExample() {
-      $("content").value = SAMPLE_DRAFT;
-      $("campaign").value = "Spring product campaign";
-      review();
-    }
-
-    function saveRecord() {
-      const data = {
-        product: "BrandGuard",
-        prototype: true,
-        campaign: $("campaign").value.trim(),
-        content: $("content").value,
-        findings: lastFindings.map(({title, severity, why, suggestion}) => ({title, severity, why, suggestion})),
-        decision: $("decision").value,
-        notes: $("notes").value.trim(),
-        savedAt: new Date().toISOString(),
-        limitation: "Illustrative keyword-based checks only; human verification required."
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "brandguard-review-record.json";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      $("saved").textContent = "Review record prepared for download.";
-    }
-
-    $("reviewBtn").addEventListener("click", review);
-    $("exampleBtn").addEventListener("click", loadExample);
-    $("saveBtn").addEventListener("click", saveRecord);
-    review();
-  </script>
-</body>
-</html>
+<header class="top"><div class="topin"><div class="brand"><div class="logo">BG</div><div><h1>BrandGuard</h1><p class="sub">CodeNova · Brand governance workspace</p></div></div><span class="pill">ROUND 3 · REVIEW WORKSPACE</span></div></header>
+<main class="wrap"><section class="hero"><div><div class="eyebrow">Content assurance workspace</div><h2>Review content before it goes live.</h2><p>Check campaign copy against configurable guidelines, review potential risks, and keep a local history of human decisions.</p></div><div class="notice"><strong>Privacy & scope</strong><br>Rule-based checks work locally. AI review is optional and requires your own Gemini API key. Findings are suggestions for human verification.</div></section>
+<nav class="tabs" aria-label="Workspace sections"><button class="tab active" data-tab="review">Content review</button><button class="tab" data-tab="guidelines">Brand guidelines</button><button class="tab" data-tab="history">Review history</button><button class="tab" data-tab="settings">AI settings</button></nav>
+<section id="panel-review" class="panel active"><div class="grid"><section class="card"><div class="head"><h3>Draft content</h3><span class="step">STEP 01</span></div><div class="body"><div class="field"><label for="campaign">Campaign name</label><input id="campaign" value="Spring product campaign" maxlength="120" placeholder="e.g. Spring launch"></div><div class="field"><label for="content">Content to review</label><textarea id="content" maxlength="20000" placeholder="Paste campaign copy here…">Our product is the best in the world! Get 90% off today only. We guarantee results for every customer. Contact us to learn more.</textarea><p class="help">Up to 20,000 characters. Draft text stays in this browser unless you explicitly run optional AI review.</p></div><div class="actions"><button class="btn primary" id="reviewBtn">Review content →</button><button class="btn secondary" id="exampleBtn">Load sample draft</button><button class="btn secondary" id="clearBtn">Clear draft</button></div><p class="status" id="reviewStatus" role="status"></p></div></section>
+<section class="card"><div class="head"><h3>Review findings</h3><span class="step">STEP 02</span></div><div class="summarybar"><p class="summary" id="summary" aria-live="polite">Ready to review. Run a check to see potential issues.</p><span class="count" id="count">Not run</span></div><div class="results" id="results" aria-live="polite"><div class="empty">Your findings will appear here.</div></div><div class="reviewer"><h4>Human review decision</h4><div class="two"><div class="field"><label for="decision">Decision</label><select id="decision"><option>In review</option><option>Changes requested</option><option>Approved by reviewer</option><option>Escalated for fact check</option></select></div><div class="field"><label for="reviewerName">Reviewer</label><input id="reviewerName" placeholder="Name or team"></div></div><div class="field"><label for="notes">Reviewer notes</label><textarea id="notes" placeholder="Rationale, required edits, or evidence checked…" style="min-height:75px"></textarea></div><div class="actions"><button class="btn primary" id="saveRecordBtn">Save to history</button><button class="btn secondary" id="downloadJsonBtn">Download JSON</button><button class="btn secondary" id="downloadReportBtn">Download report</button></div><p class="status" id="saveStatus" role="status"></p></div></section></div></section>
+<section id="panel-guidelines" class="panel"><div class="grid"><section class="card"><div class="head"><h3>Brand guideline settings</h3><span class="step">CONFIGURE</span></div><div class="body"><div class="field"><label for="brandName">Brand / organisation</label><input id="brandName" maxlength="120" placeholder="e.g. Acme"></div><div class="field"><label for="brandTone">Preferred brand tone</label><select id="brandTone"><option>Clear and helpful</option><option>Professional and factual</option><option>Friendly and conversational</option><option>Confident but not exaggerated</option><option>Premium and concise</option></select></div><div class="field"><label for="approvedTerms">Approved terms (one per line)</label><textarea id="approvedTerms" style="min-height:90px" placeholder="e.g. customer-first\nenergy efficient"></textarea></div><div class="field"><label for="restrictedTerms">Restricted terms / phrases (one per line)</label><textarea id="restrictedTerms" style="min-height:110px" placeholder="e.g. guaranteed results\nworld's best\nrisk-free"></textarea><p class="help">Custom restricted phrases are checked case-insensitively against the draft.</p></div><div class="field"><label for="guidelineNotes">Additional guideline notes</label><textarea id="guidelineNotes" style="min-height:85px" placeholder="Claims that require proof, legal disclaimers, preferred CTA…"></textarea></div><div class="actions"><button class="btn primary" id="saveGuidelinesBtn">Save guidelines</button><button class="btn secondary" id="resetGuidelinesBtn">Reset defaults</button></div><p class="status" id="guidelineStatus" role="status"></p></div></section><section class="card"><div class="head"><h3>Current guideline summary</h3></div><div class="body"><div id="guidelineSummary" class="list"></div><div class="footer">Guidelines are stored in this browser using local storage. They are not synced to another device or user account.</div></div></section></div></section>
+<section id="panel-history" class="panel"><section class="card"><div class="head"><h3>Review history</h3><div class="actions" style="margin:0"><button class="btn secondary" id="exportHistoryBtn">Export history JSON</button><button class="btn danger" id="clearHistoryBtn">Clear history</button></div></div><div class="body"><p class="help" style="margin-top:0;margin-bottom:14px">Saved reviews stay in this browser. Open a record to review its details or download it again.</p><div id="historyList"></div><p id="historyStatus" class="status" role="status"></p></div></section></section>
+<section id="panel-settings" class="panel"><div class="grid"><section class="card"><div class="head"><h3>Optional Gemini AI review</h3><span class="step">OPTIONAL</span></div><div class="body"><div class="keybox"><strong>Security note:</strong> This static demo sends draft text to Google's Gemini API only when you click AI review. Your API key is held in memory for this page session and is not saved into project files. For a production/public app, route AI calls through a server-side API and secret environment variable instead of exposing keys in a browser.</div><div class="field"><label for="apiKey">Gemini API key</label><input id="apiKey" type="password" autocomplete="off" placeholder="Paste your own API key for this session"></div><div class="field"><label for="model">Model</label><select id="model"><option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (recommended)</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</option></select></div><label class="checkline"><input id="useAi" type="checkbox"> Enable optional AI review button</label><div class="actions"><button class="btn primary" id="aiReviewBtn">Run AI review</button><button class="btn secondary" id="forgetKeyBtn">Clear API key</button></div><p id="aiStatus" class="status" role="status"></p></div></section><section class="card"><div class="head"><h3>What this version does</h3></div><div class="body"><div class="list"><div class="rowitem"><div><strong>Rule-based checks</strong><small>Superiority, guarantee, discount, urgency, generic CTA, accessibility reminder and custom terms.</small></div><span class="tag">LOCAL</span></div><div class="rowitem"><div><strong>Guideline manager</strong><small>Save brand tone, approved terms, restricted terms and notes.</small></div><span class="tag">LOCAL</span></div><div class="rowitem"><div><strong>Reports and history</strong><small>Save records locally and download JSON or a readable HTML report.</small></div><span class="tag">LOCAL</span></div><div class="rowitem"><div><strong>AI review</strong><small>Optional Gemini API call; requires an API key and network access.</small></div><span class="tag">OPTIONAL</span></div></div><div class="footer">AI output may be inaccurate. Treat it as a suggestion, not legal advice or factual verification. Review all findings against approved evidence.</div></div></section></div></section>
+<div class="footer"><strong>Prototype limitations:</strong> Browser-local storage is device-specific and can be cleared by browser settings. Keyword rules are illustrative. AI output requires human review. This version does not provide multi-user authentication, server-side history, or protected server-side API credentials.</div></main>
+<script>
+'use strict';
+const SAMPLE='Our product is the best in the world! Get 90% off today only. We guarantee results for every customer. Contact us to learn more.';
+const DEFAULT_GUIDELINES={brandName:'',brandTone:'Clear and helpful',approvedTerms:[],restrictedTerms:['guaranteed results',"world's best",'risk-free'],guidelineNotes:''};
+const rules=[
+{regex:/\b(best|#1|number one|world'?s leading)\b/i,title:'Superiority claim',severity:'High',why:'This absolute or comparative claim may need evidence from an approved source.',suggestion:'Use a specific, verifiable benefit or attach approved supporting evidence.'},
+{regex:/\b(guarantee|guaranteed|100% results|always works)\b/i,title:'Guarantee claim',severity:'High',why:'A guarantee can mislead if the promise, scope, or conditions are not substantiated.',suggestion:'Remove the promise or state verified conditions and evidence clearly.'},
+{regex:/\b\d+\s?%\s?off\b/i,title:'Discount needs verification',severity:'Medium',why:'The discount amount, dates, eligibility, and terms should match the approved promotion.',suggestion:'Verify the offer and include applicable dates, eligibility, and terms.'},
+{regex:/\b(today only|limited time|act now|last chance)\b/i,title:'Urgency wording',severity:'Medium',why:'Urgency wording should reflect a real, approved deadline or limited availability.',suggestion:'Add the actual deadline or use neutral wording.'},
+{regex:/\b(contact us|click here)\b/i,title:'Generic call to action',severity:'Low',why:'The next step may be unclear to the audience.',suggestion:'Use a more specific action, such as “View product details”.'},
+{regex:/\b(image|photo|picture|banner)\b/i,title:'Accessibility reminder',severity:'Low',why:'If the campaign includes meaningful images, they may need suitable alternative text.',suggestion:'Add concise alt text that describes the image’s purpose.'}
+];
+const $=id=>document.getElementById(id);let lastFindings=[],lastReviewedAt=null,lastAiSummary='',apiKeyMemory='';
+function readStore(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch(e){return fallback}}
+function writeStore(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){return false}}
+function currentGuidelines(){return {brandName:$('brandName').value.trim(),brandTone:$('brandTone').value,approvedTerms:$('approvedTerms').value.split('\n').map(x=>x.trim()).filter(Boolean),restrictedTerms:$('restrictedTerms').value.split('\n').map(x=>x.trim()).filter(Boolean),guidelineNotes:$('guidelineNotes').value.trim()}}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function finding(title,severity,why,suggestion,source='Rule check'){return {title,severity,why,suggestion,source}}
+function analyze(text){const found=rules.filter(r=>r.regex.test(text)).map(r=>finding(r.title,r.severity,r.why,r.suggestion));const g=currentGuidelines();for(const term of g.restrictedTerms){if(term && text.toLowerCase().includes(term.toLowerCase()))found.push(finding('Restricted brand term: “'+term+'”','High','This phrase appears in the saved brand restrictions. Confirm whether its use is allowed.','Remove the restricted phrase or document an approved exception.','Brand guideline'));}return found.filter((f,i,a)=>a.findIndex(x=>x.title===f.title)===i)}
+function renderFindings(items,summary){$('results').replaceChildren();if(!items.length){const d=document.createElement('div');d.className='good';d.innerHTML='<strong>No configured rule matches detected</strong><p class="help">This is not proof that the content is accurate or compliant. A human reviewer must verify claims and applicable guidelines.</p>';$('results').appendChild(d)}else{items.forEach(f=>{const el=document.createElement('article');el.className='finding '+(f.severity==='High'?'high':f.severity==='Low'?'low':'');const title=document.createElement('div');title.className='ftitle';const name=document.createElement('span');name.textContent=f.title;const sev=document.createElement('span');sev.className='severity';sev.textContent=f.severity+' priority';title.append(name,sev);const why=document.createElement('p');why.innerHTML='<b>Why:</b> '+escapeHtml(f.why);const sug=document.createElement('p');sug.innerHTML='<b>Suggested action:</b> '+escapeHtml(f.suggestion);const src=document.createElement('p');src.textContent='Source: '+(f.source||'Rule check');el.append(title,why,sug,src);$('results').appendChild(el)})}$('count').textContent=items.length+' '+(items.length===1?'finding':'findings');$('summary').textContent=summary|| (items.length?'Potential issues found. Review each one against approved sources.':'No configured rule matches detected. Human verification is still required.')}
+function review(){const content=$('content').value;if(!content.trim()){$('reviewStatus').textContent='Please enter content before running a review.';$('reviewStatus').className='status error';$('content').focus();return false}lastFindings=analyze(content);lastReviewedAt=new Date().toISOString();lastAiSummary='';renderFindings(lastFindings);$('reviewStatus').textContent='Rule-based review complete.';$('reviewStatus').className='status';$('saveStatus').textContent='';return true}
+function loadExample(){ $('content').value=SAMPLE;$('campaign').value='Spring product campaign';review() }
+function download(name,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function record(){return {product:'BrandGuard',version:'Round 3 prototype',prototype:true,campaign:$('campaign').value.trim(),content:$('content').value,findings:lastFindings,decision:$('decision').value,reviewer:$('reviewerName').value.trim(),notes:$('notes').value.trim(),brandGuidelines:currentGuidelines(),aiSummary:lastAiSummary||null,reviewedAt:lastReviewedAt||null,savedAt:new Date().toISOString(),limitation:'Rule checks and optional AI suggestions are not factual or legal verification; human review required.'}}
+function downloadJSON(){if(!$('content').value.trim()){ $('saveStatus').textContent='Enter content before downloading a record.';$('saveStatus').className='status error';return}if(!lastReviewedAt&&!review())return;download('brandguard-review-record.json',JSON.stringify(record(),null,2),'application/json');$('saveStatus').textContent='JSON review record downloaded.';$('saveStatus').className='status'}
+function reportHTML(r){return `<!doctype html><html><head><meta charset="utf-8"><title>BrandGuard Review Report</title><style>body{font:15px/1.5 Arial,sans-serif;max-width:850px;margin:35px auto;padding:0 18px;color:#182238}h1{color:#243b85}.box{border:1px solid #ddd;border-radius:10px;padding:14px;margin:12px 0}.meta{color:#555;font-size:13px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f7fb;padding:14px;border-radius:8px}.finding{border-left:4px solid #b86b08;background:#fffbf2;padding:12px;margin:10px 0}.high{border-color:#bd3c4a;background:#fff6f6}.low{border-color:#0f9f8f;background:#f3fcf9}</style></head><body><h1>BrandGuard — Review Report</h1><p class="meta">Generated ${escapeHtml(r.savedAt)} · ${escapeHtml(r.campaign||'Unnamed campaign')}</p><div class="box"><b>Decision:</b> ${escapeHtml(r.decision)}<br><b>Reviewer:</b> ${escapeHtml(r.reviewer||'Not specified')}<br><b>Brand:</b> ${escapeHtml(r.brandGuidelines.brandName||'Not specified')}<br><b>Findings:</b> ${r.findings.length}</div><h2>Draft content</h2><pre>${escapeHtml(r.content)}</pre><h2>Findings and recommendations</h2>${r.findings.length?r.findings.map(f=>`<div class="finding ${f.severity==='High'?'high':f.severity==='Low'?'low':''}"><b>${escapeHtml(f.title)} — ${escapeHtml(f.severity)}</b><p>${escapeHtml(f.why)}</p><p><b>Suggested action:</b> ${escapeHtml(f.suggestion)}</p><p class="meta">Source: ${escapeHtml(f.source||'Rule check')}</p></div>`).join(''):'<p>No configured rule matches detected; this is not proof of compliance.</p>'}<h2>Reviewer notes</h2><pre>${escapeHtml(r.notes||'No notes added.')}</pre>${r.aiSummary?'<h2>AI summary</h2><pre>'+escapeHtml(r.aiSummary)+'</pre>':''}<hr><p class="meta">Prototype limitation: automated checks can be incomplete or inaccurate. Verify all claims against approved sources.</p></body></html>`}
+function downloadReport(){if(!$('content').value.trim()){ $('saveStatus').textContent='Enter content before downloading a report.';$('saveStatus').className='status error';return}if(!lastReviewedAt&&!review())return;download('brandguard-review-report.html',reportHTML(record()),'text/html');$('saveStatus').textContent='Readable HTML report downloaded.';$('saveStatus').className='status'}
+function saveRecord(){if(!$('content').value.trim()){ $('saveStatus').textContent='Enter content before saving a review.';$('saveStatus').className='status error';return}if(!lastReviewedAt&&!review())return;const r=record();const hist=readStore('bg_history',[]);hist.unshift(r);if(!writeStore('bg_history',hist.slice(0,100))){$('saveStatus').textContent='Browser storage is full or unavailable. Download JSON instead.';$('saveStatus').className='status error';return}renderHistory();$('saveStatus').textContent='Review saved to this browser’s history.';$('saveStatus').className='status'}
+function loadGuidelines(){const g=readStore('bg_guidelines',DEFAULT_GUIDELINES);$('brandName').value=g.brandName||'';$('brandTone').value=g.brandTone||DEFAULT_GUIDELINES.brandTone;$('approvedTerms').value=(g.approvedTerms||[]).join('\n');$('restrictedTerms').value=(g.restrictedTerms||[]).join('\n');$('guidelineNotes').value=g.guidelineNotes||'';renderGuidelineSummary()}
+function saveGuidelines(){const g=currentGuidelines();if(!writeStore('bg_guidelines',g)){$('guidelineStatus').textContent='Could not save settings in this browser.';$('guidelineStatus').className='status error';return}renderGuidelineSummary();$('guidelineStatus').textContent='Brand guidelines saved locally.';$('guidelineStatus').className='status'}
+function renderGuidelineSummary(){const g=currentGuidelines();const box=$('guidelineSummary');if(!box)return;box.replaceChildren();const items=[['Brand',g.brandName||'Not specified'],['Preferred tone',g.brandTone],['Approved terms',g.approvedTerms.length?g.approvedTerms.join(', '):'None configured'],['Restricted terms',g.restrictedTerms.length?g.restrictedTerms.join(', '):'None configured'],['Additional notes',g.guidelineNotes||'None']];items.forEach(([k,v])=>{const d=document.createElement('div');d.className='rowitem';d.innerHTML='<div><strong>'+escapeHtml(k)+'</strong><small>'+escapeHtml(v)+'</small></div>';box.appendChild(d)})}
+function renderHistory(){const list=$('historyList');const h=readStore('bg_history',[]);list.replaceChildren();if(!h.length){list.innerHTML='<div class="empty"><strong>No saved reviews yet</strong>Run a review and select “Save to history”.</div>';return}h.forEach((r,i)=>{const d=document.createElement('div');d.className='history-item';const date=r.savedAt?new Date(r.savedAt).toLocaleString():'Unknown date';d.innerHTML='<h4>'+escapeHtml(r.campaign||'Unnamed campaign')+' · '+escapeHtml(r.decision||'In review')+'</h4><p>'+escapeHtml(date)+' · '+((r.findings||[]).length)+' finding(s) · Reviewer: '+escapeHtml(r.reviewer||'Not specified')+'</p><p>'+escapeHtml((r.content||'').slice(0,180))+'</p><div class="actions"><button class="btn secondary" data-open="'+i+'">Open record</button><button class="btn secondary" data-download="'+i+'">Download JSON</button><button class="btn danger" data-delete="'+i+'">Delete</button></div>';list.appendChild(d)});list.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{const r=h[Number(b.dataset.open)];$('campaign').value=r.campaign||'';$('content').value=r.content||'';$('decision').value=r.decision||'In review';$('reviewerName').value=r.reviewer||'';$('notes').value=r.notes||'';lastFindings=r.findings||[];lastReviewedAt=r.reviewedAt||r.savedAt;lastAiSummary=r.aiSummary||'';renderFindings(lastFindings,'Loaded saved review record.');document.querySelector('[data-tab="review"]').click()}));list.querySelectorAll('[data-download]').forEach(b=>b.addEventListener('click',()=>download('brandguard-review-record.json',JSON.stringify(h[Number(b.dataset.download)],null,2),'application/json')));list.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>{const idx=Number(b.dataset.delete);const latest=readStore('bg_history',[]);latest.splice(idx,1);writeStore('bg_history',latest);renderHistory()}))}
+async function runAI(){const text=$('content').value.trim();if(!text){$('aiStatus').textContent='Enter content before running AI review.';$('aiStatus').className='status error';return}if(!$('useAi').checked){$('aiStatus').textContent='Enable the AI review checkbox first.';$('aiStatus').className='status error';return}if(!apiKeyMemory){$('aiStatus').textContent='Paste a Gemini API key in this page session first.';$('aiStatus').className='status error';return}const g=currentGuidelines();$('aiReviewBtn').disabled=true;$('aiStatus').textContent='Calling Gemini…';$('aiStatus').className='status';try{const prompt=`You are a careful brand governance assistant. Review the following campaign copy for possible unsupported superiority claims, guarantees, promotion/urgency issues, unclear calls to action, accessibility reminders, and fit with brand guidelines. Do not claim a statement is false without evidence. Return concise plain text with: 1) short summary, 2) each issue with severity High/Medium/Low, quoted phrase, reason, and suggested correction, 3) items needing human evidence verification. Brand: ${g.brandName||'not specified'}. Preferred tone: ${g.brandTone}. Approved terms: ${g.approvedTerms.join(', ')||'none specified'}. Restricted terms: ${g.restrictedTerms.join(', ')||'none specified'}. Additional guidelines: ${g.guidelineNotes||'none specified'}. Campaign: ${$('campaign').value}. Content:\n${text}`;const model=$('model').value;const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKeyMemory)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:1600}})});const data=await res.json();if(!res.ok)throw new Error(data?.error?.message||`Request failed (${res.status})`);const out=(data.candidates||[]).flatMap(c=>c.content?.parts||[]).map(p=>p.text||'').join('\n').trim();if(!out)throw new Error('The model returned an empty response.');lastAiSummary=out;const box=document.createElement('section');box.className='card';box.style.marginTop='14px';box.innerHTML='<div class="head"><h3>Optional AI review output</h3><span class="step">AI SUGGESTIONS · VERIFY</span></div><div class="body"><pre style="white-space:pre-wrap;font:13px/1.6 inherit;margin:0"></pre></div>';box.querySelector('pre').textContent=out;$('results').appendChild(box);$('aiStatus').textContent='AI suggestions received. Review them carefully; they are not verified facts.';$('aiStatus').className='status';if(!lastReviewedAt)lastReviewedAt=new Date().toISOString()}catch(e){$('aiStatus').textContent='AI request failed: '+e.message+' — continue with local rule checks or verify the API key/model access.';$('aiStatus').className='status error'}finally{$('aiReviewBtn').disabled=false}}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+b.dataset.tab));if(b.dataset.tab==='history')renderHistory();if(b.dataset.tab==='guidelines')renderGuidelineSummary()}));
+$('reviewBtn').addEventListener('click',review);$('exampleBtn').addEventListener('click',loadExample);$('clearBtn').addEventListener('click',()=>{$('content').value='';$('reviewStatus').textContent='Draft cleared. Enter content before reviewing.';$('reviewStatus').className='status';$('results').innerHTML='<div class="empty">Enter content and run a review to see findings.</div>';$('count').textContent='Not run';$('summary').textContent='Draft cleared.';lastFindings=[];lastReviewedAt=null;lastAiSummary=''});$('saveRecordBtn').addEventListener('click',saveRecord);$('downloadJsonBtn').addEventListener('click',downloadJSON);$('downloadReportBtn').addEventListener('click',downloadReport);$('saveGuidelinesBtn').addEventListener('click',saveGuidelines);$('resetGuidelinesBtn').addEventListener('click',()=>{writeStore('bg_guidelines',DEFAULT_GUIDELINES);loadGuidelines();$('guidelineStatus').textContent='Default guidelines restored.';$('guidelineStatus').className='status'});$('exportHistoryBtn').addEventListener('click',()=>download('brandguard-review-history.json',JSON.stringify(readStore('bg_history',[]),null,2),'application/json'));$('clearHistoryBtn').addEventListener('click',()=>{if(confirm('Delete all locally saved review history? This cannot be undone.')){writeStore('bg_history',[]);renderHistory();$('historyStatus').textContent='Local history cleared.'}});$('aiReviewBtn').addEventListener('click',runAI);$('forgetKeyBtn').addEventListener('click',()=>{apiKeyMemory='';$('apiKey').value='';$('aiStatus').textContent='API key cleared from this page session.';$('aiStatus').className='status'});$('apiKey').addEventListener('input',e=>{apiKeyMemory=e.target.value.trim()});
+loadGuidelines();renderHistory();review();
+</script></body></html>
